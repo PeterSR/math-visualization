@@ -3,19 +3,28 @@ function f(x, y) {
 }
 
 function eq1(x, y) {
-    return Math.round(Math.cos(x) + Math.cos(y) + f(x, y)) < 0
+    return Math.cos(x) + Math.cos(y) + f(x, y) < 0
 }
 
 function render() {
     var ctx = getMainCanvas()
-    ctx.scale(10, 10)
 
-    for (var x = 0; x < canvas.clientWidth; x++) {
-        for (var y = 0; y < canvas.clientHeight; y++) {
+    var xMin = -10
+    var xMax = 10
+    var yMin = -10
+    var yMax = 10
+
+    var shortestDim = Math.min(ctx.canvas.width, ctx.canvas.height)
+
+    for (var xPixel = 0; xPixel < ctx.canvas.width; xPixel++) {
+        for (var yPixel = 0; yPixel < ctx.canvas.height; yPixel++) {
+            var x = remap(xPixel, 0, shortestDim, xMin, xMax)
+            var y = remap(yPixel, 0, shortestDim, yMin, yMax)
+
             if (eq1(x, y)) {
-                drawPixel(ctx, x, y, 0, 0, 0)
+                drawPixel(ctx, xPixel, yPixel, 0, 0, 0)
             } else {
-                drawPixel(ctx, x, y, 255, 255, 255)
+                drawPixel(ctx, xPixel, yPixel, 255, 255, 255)
             }
         }
     }
