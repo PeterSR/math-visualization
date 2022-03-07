@@ -1,9 +1,17 @@
+var zoom = 3
+var p1 = 1
+var p2 = 10
+
+function d(x,y) {
+    return Math.sqrt(x*x + y*y)
+}
+
 function f(x, y) {
-    return 0
+    return 2/(1 + Math.exp(-p1*(d(x,y)-p2))) -1
 }
 
 function eq1(x, y) {
-    return Math.cos(x) + Math.cos(y) + f(x, y) < 0
+    return Math.round(Math.cos(zoom*(x+y)) + Math.cos(zoom*(x-y)) + f(x, y)) < 0
 }
 
 function render() {
