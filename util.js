@@ -13,6 +13,13 @@ function remap(value, low1, high1, low2, high2) {
     return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
+function almostEqual(v1, v2, epsilon) {
+    if (epsilon == null) {
+        epsilon = 0.001
+    }
+    return Math.abs(v1 - v2) < epsilon
+}
+
 function onResize() {
     var ctx = getMainCanvas()
     ctx.canvas.width  = window.innerWidth;

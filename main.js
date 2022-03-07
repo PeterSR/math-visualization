@@ -14,12 +14,15 @@ function render() {
     var yMin = -10
     var yMax = 10
 
+    var xPixelOffset = ctx.canvas.width/2
+    var yPixelOffset = ctx.canvas.height/2
+
     var shortestDim = Math.min(ctx.canvas.width, ctx.canvas.height)
 
     for (var xPixel = 0; xPixel < ctx.canvas.width; xPixel++) {
         for (var yPixel = 0; yPixel < ctx.canvas.height; yPixel++) {
-            var x = remap(xPixel, 0, shortestDim, xMin, xMax)
-            var y = remap(yPixel, 0, shortestDim, yMin, yMax)
+            var x = remap(xPixel-xPixelOffset, 0, shortestDim, xMin, xMax)
+            var y = remap(yPixel+yPixelOffset, 0, shortestDim, yMin, yMax)
 
             if (eq1(x, y)) {
                 drawPixel(ctx, xPixel, yPixel, 0, 0, 0)
