@@ -15,12 +15,12 @@ function eq1(x, y) {
     return Math.round(Math.cos(zoom*(x+y)) + Math.cos(zoom*(x-y)) + f(x, y)) < 0
 }
 
-function render() {
+function render(drawContext) {
     if (drawing) {
         return
     }
 
-    var ctx = getMainCanvas()
+    const ctx = drawContext.ctx
 
     var xMin = -10
     var xMax = 10
@@ -36,18 +36,18 @@ function render() {
     var sectionsDrawn = 0
 
     drawing = true
-    console.time("draw")
+    //console.time("draw")
 
     sections.forEach((section) => {
 
-        setTimeout(() => {
+        //setTimeout(() => {
 
             const xLo = section.xMin
             const xHi = section.xMax
             const yLo = section.yMin
             const yHi = section.yMax
-            const xStep = 1
-            const yStep = 1
+            const xStep = 7
+            const yStep = 7
 
             for (var xPixel = xLo; xPixel < xHi; xPixel += xStep) {
                 for (var yPixel = yLo; yPixel < yHi; yPixel += yStep) {
@@ -65,11 +65,18 @@ function render() {
             sectionsDrawn += 1
 
             if (sectionsDrawn == sections.length) {
-                console.timeEnd("draw")
+                //console.timeEnd("draw")
                 drawing = false
+                //drawContext.drawEnd()
             }
-        })
+        //})
 
     })
+}
 
+
+function onLoad() {
+    const renderer = createRenderer("canvas")
+    renderer.registerDraw(render)
+    renderer.start()
 }
