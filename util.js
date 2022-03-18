@@ -73,6 +73,10 @@ function createRenderer(canvas) {
 
     let drawFunc = null
 
+    let pointer = {
+        x: 0,
+        y: 0,
+    }
     let camera = {
         x: window.innerWidth / 2,
         y: window.innerHeight / 2,
@@ -86,6 +90,7 @@ function createRenderer(canvas) {
     let dragStart = { x: 0, y: 0 }
     let initialPinchDistance = null
     let lastZoom = camera.zoom
+    let waitingForFrame = false
 
     let drawContext = {
         ctx: offScreenCtx,
@@ -109,29 +114,32 @@ function createRenderer(canvas) {
             resizeCanvas()
         }
 
-        drawContext.isMoving = isDragging
-        drawContext.ctx.clearRect(0, 0, canvas.width, canvas.height)
+        if (!waitingForFrame) {
+            waitingForFrame = true
+            setTimeout(() => {
+                drawContext.isMoving = isDragging
+                drawContext.ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        drawContext.ctx.save()
-        drawContext.ctx.translate(canvas.width / 2, canvas.height / 2)
-        drawContext.ctx.scale(camera.zoom, camera.zoom)
-        drawContext.ctx.translate(-canvas.width / 2 + camera.x, -canvas.height / 2 + camera.y)
+                drawContext.ctx.save()
+                drawContext.ctx.translate(canvas.width / 2, canvas.height / 2)
+                drawContext.ctx.scale(camera.zoom, camera.zoom)
+                drawContext.ctx.translate(-canvas.width / 2 + camera.x, -canvas.height / 2 + camera.y)
 
-        if (drawFunc) {
-            delayRender = drawFunc(drawContext)
+                if (drawFunc) {
+                    drawFunc(drawContext)
+                }
+
+                drawContext.ctx.restore()
+            })
         }
 
-        drawContext.ctx.restore()
-
-        if (!delayRender) {
-            drawEnd()
-        }
+        requestAnimationFrame(mainRender)
     }
 
     function drawEnd() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(offScreenCanvas, 0, 0)
-        requestAnimationFrame(mainRender)
+        waitingForFrame = false
     }
 
     // Helper functions
@@ -172,8 +180,10 @@ function createRenderer(canvas) {
     }
 
     function onPointerMove(e) {
+        const loc = getEventLocation(e)
+        pointer.x = loc.x
+        pointer.y = loc.y
         if (isDragging) {
-            const loc = getEventLocation(e)
             camera.x = loc.x / camera.zoom - dragStart.x
             camera.y = loc.y / camera.zoom - dragStart.y
         }

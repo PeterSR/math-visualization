@@ -40,8 +40,8 @@ function render(drawContext) {
             const xHi = section.xMax
             const yLo = section.yMin
             const yHi = section.yMax
-            const xStep = drawContext.isMoving ? 10 : 1
-            const yStep = drawContext.isMoving ? 10 : 1
+            const xStep = drawContext.isMoving ? 15 : 1
+            const yStep = drawContext.isMoving ? 15 : 1
 
             for (var xPixel = xLo; xPixel < xHi; xPixel += xStep) {
                 for (var yPixel = yLo; yPixel < yHi; yPixel += yStep) {
