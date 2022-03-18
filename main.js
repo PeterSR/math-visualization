@@ -1,7 +1,6 @@
 var zoom = 3
 var p1 = 1
 var p2 = 10
-var drawing = false
 
 function d(x,y) {
     return Math.sqrt(x*x + y*y)
@@ -16,10 +15,6 @@ function eq1(x, y) {
 }
 
 function render(drawContext) {
-    if (drawing) {
-        return
-    }
-
     const ctx = drawContext.ctx
 
     var xMin = -10
@@ -35,7 +30,6 @@ function render(drawContext) {
     var sections = computeSections(ctx.canvas.width, ctx.canvas.height, 16, 12)
     var sectionsDrawn = 0
 
-    drawing = true
     //console.time("draw")
 
     sections.forEach((section) => {
@@ -46,8 +40,8 @@ function render(drawContext) {
             const xHi = section.xMax
             const yLo = section.yMin
             const yHi = section.yMax
-            const xStep = 7
-            const yStep = 7
+            const xStep = drawContext.isMoving ? 10 : 1
+            const yStep = drawContext.isMoving ? 10 : 1
 
             for (var xPixel = xLo; xPixel < xHi; xPixel += xStep) {
                 for (var yPixel = yLo; yPixel < yHi; yPixel += yStep) {
@@ -55,9 +49,9 @@ function render(drawContext) {
                     var y = remap(yPixel+yPixelOffset, 0, shortestDim, yMin, yMax)
 
                     if (eq1(x, y)) {
-                        drawPixel(ctx, xPixel, yPixel, 0, 0, 0)
+                        drawBlackPixel(ctx, xPixel, yPixel)
                     } else {
-                        drawPixel(ctx, xPixel, yPixel, 255, 255, 255)
+                        drawWhitePixel(ctx, xPixel, yPixel)
                     }
                 }
             }
@@ -66,12 +60,13 @@ function render(drawContext) {
 
             if (sectionsDrawn == sections.length) {
                 //console.timeEnd("draw")
-                drawing = false
-                //drawContext.drawEnd()
+                drawContext.drawEnd()
             }
         //})
 
     })
+
+    return true
 }
 
 

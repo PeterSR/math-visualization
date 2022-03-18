@@ -1,6 +1,21 @@
+function drawPixelFactory(r, g, b) {
+    const fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+    return function(ctx, x, y) {
+        ctx.fillStyle = fillStyle;
+        ctx.fillRect(x, y, 1, 1);
+    }
+}
+
+const drawBlackPixel = drawPixelFactory(0, 0, 0)
+const drawWhitePixel = drawPixelFactory(255, 255, 255)
+
 function drawPixel(ctx, x, y, r, g, b) {
     ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
     ctx.fillRect(x, y, 1, 1);
+}
+
+function resetTransform(ctx) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
 }
 
 function remap(value, low1, high1, low2, high2) {
@@ -75,6 +90,7 @@ function createRenderer(canvas) {
     let drawContext = {
         ctx: offScreenCtx,
         camera: camera,
+        isMoving: false,
         drawEnd: drawEnd,
     }
 
@@ -93,11 +109,13 @@ function createRenderer(canvas) {
             resizeCanvas()
         }
 
+        drawContext.isMoving = isDragging
+        drawContext.ctx.clearRect(0, 0, canvas.width, canvas.height)
+
         drawContext.ctx.save()
         drawContext.ctx.translate(canvas.width / 2, canvas.height / 2)
         drawContext.ctx.scale(camera.zoom, camera.zoom)
         drawContext.ctx.translate(-canvas.width / 2 + camera.x, -canvas.height / 2 + camera.y)
-        drawContext.ctx.clearRect(0, 0, canvas.width, canvas.height)
 
         if (drawFunc) {
             delayRender = drawFunc(drawContext)
@@ -134,6 +152,9 @@ function createRenderer(canvas) {
             return { x: e.touches[0].clientX, y: e.touches[0].clientY }
         } else if (e.clientX && e.clientY) {
             return { x: e.clientX, y: e.clientY }
+        } else {
+            // Fallback values
+            return { x: dragStart.x, y: dragStart.y }
         }
     }
 
@@ -202,7 +223,7 @@ function createRenderer(canvas) {
     canvas.addEventListener('touchend', (e) => handleTouch(e, onPointerUp))
     canvas.addEventListener('mousemove', onPointerMove)
     canvas.addEventListener('touchmove', (e) => handleTouch(e, onPointerMove))
-    canvas.addEventListener('wheel', (e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY))
+    canvas.addEventListener('wheel', (e) => adjustZoom(-e.deltaY * SCROLL_SENSITIVITY))
 
 
     return {
