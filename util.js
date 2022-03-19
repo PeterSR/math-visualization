@@ -86,6 +86,10 @@ function createRenderer(canvas) {
     let MIN_ZOOM = 0.1
     let SCROLL_SENSITIVITY = 0.0005
 
+    let isMoving = false
+    let isZooming = false
+    let isZoomingDebounceId = null
+    let isZoomingDebounceTime = 1000
     let isDragging = false
     let dragStart = { x: 0, y: 0 }
     let initialPinchDistance = null
@@ -95,6 +99,7 @@ function createRenderer(canvas) {
     let drawContext = {
         ctx: offScreenCtx,
         camera: camera,
+        sections: [],
         isMoving: false,
         drawEnd: drawEnd,
     }
@@ -114,10 +119,16 @@ function createRenderer(canvas) {
             resizeCanvas()
         }
 
+        isMoving = isDragging || isZooming
+
+        if (isMoving) {
+            waitingForFrame = false
+        }
+
         if (!waitingForFrame) {
             waitingForFrame = true
             setTimeout(() => {
-                drawContext.isMoving = isDragging
+                drawContext.isMoving = isMoving
                 drawContext.ctx.clearRect(0, 0, canvas.width, canvas.height)
 
                 drawContext.ctx.save()
@@ -153,6 +164,8 @@ function createRenderer(canvas) {
 
         offScreenCanvas.width = canvas.width
         offScreenCanvas.height = canvas.height
+
+        drawContext.sections = computeSections(canvas.width, canvas.height, 16, 12)
     }
 
     function getEventLocation(e) {
@@ -224,6 +237,14 @@ function createRenderer(canvas) {
 
             camera.zoom = Math.min(camera.zoom, MAX_ZOOM)
             camera.zoom = Math.max(camera.zoom, MIN_ZOOM)
+
+            isZooming = true
+
+            clearTimeout(isZoomingDebounceId)
+
+            isZoomingDebounceId = setTimeout(() => {
+                isZooming = false
+            }, isZoomingDebounceTime)
         }
     }
 

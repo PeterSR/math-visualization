@@ -27,7 +27,7 @@ function render(drawContext) {
 
     var shortestDim = Math.min(ctx.canvas.width, ctx.canvas.height)
 
-    var sections = computeSections(ctx.canvas.width, ctx.canvas.height, 16, 12)
+    var sections = drawContext.sections
     var sectionsDrawn = 0
 
     //console.time("draw")
