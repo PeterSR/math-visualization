@@ -136,6 +136,8 @@ function createRenderer(canvas) {
                 drawContext.ctx.scale(camera.zoom, camera.zoom)
                 drawContext.ctx.translate(-canvas.width / 2 + camera.x, -canvas.height / 2 + camera.y)
 
+                //drawAxes(drawContext.ctx)
+
                 if (drawFunc) {
                     drawFunc(drawContext)
                 }
@@ -145,6 +147,15 @@ function createRenderer(canvas) {
         }
 
         requestAnimationFrame(mainRender)
+    }
+
+    function drawAxes(ctx) {
+        ctx.lineWidth = 1 * camera.zoom;
+        ctx.strokeStyle = 'black';
+        ctx.beginPath()
+        ctx.moveTo(-canvas.width / 2 - camera.x, 0)
+        ctx.lineTo(ctx.canvas.width / 2 + camera.x, 0)
+        ctx.stroke()
     }
 
     function drawEnd() {
