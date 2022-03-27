@@ -32,6 +32,12 @@ function render(drawContext) {
 
     //console.time("draw")
 
+    p1 = drawContext.variables.p1
+    p2 = drawContext.variables.p2
+
+    // Speed up for development
+    //drawContext.isMoving = true
+
     sections.forEach((section) => {
 
         //setTimeout(() => {
@@ -74,4 +80,14 @@ function onLoad() {
     const renderer = createRenderer("canvas")
     renderer.registerDraw(render)
     renderer.start()
+
+    const controls = document.getElementById("dynamic-sliders")
+
+    const p1Slider = createVariableSlider("p1", -50, 50, 0.001, 1)
+    controls.appendChild(p1Slider.element)
+    renderer.registerVariableControl(p1Slider)
+
+    const p2Slider = createVariableSlider("p2", -50, 50, 0.001, 10)
+    controls.appendChild(p2Slider.element)
+    renderer.registerVariableControl(p2Slider)
 }

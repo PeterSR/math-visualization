@@ -19,3 +19,10 @@ canvas {
     left: 0;
     right: 0;
 }
+
+#controls {
+    position: fixed;
+    z-index: 100;
+    top: 1em;
+    left: 1em;
+}

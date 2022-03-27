@@ -72,6 +72,7 @@ function createRenderer(canvas) {
     const offScreenCtx = offScreenCanvas.getContext('2d')
 
     let drawFunc = null
+    let variableControls = {}
 
     let pointer = {
         x: 0,
@@ -101,6 +102,7 @@ function createRenderer(canvas) {
         camera: camera,
         sections: [],
         isMoving: false,
+        variables: {},
         drawEnd: drawEnd,
     }
 
@@ -113,11 +115,17 @@ function createRenderer(canvas) {
         drawFunc = fn
     }
 
+    function registerVariableControl(variable_control) {
+        variableControls[variable_control.name] = variable_control
+    }
+
     // Private functions
     function mainRender() {
         if (!canvasHasCorrectSize()) {
             resizeCanvas()
         }
+
+        copyOverVariableValues()
 
         isMoving = isDragging || isZooming
 
@@ -177,6 +185,12 @@ function createRenderer(canvas) {
         offScreenCanvas.height = canvas.height
 
         drawContext.sections = computeSections(canvas.width, canvas.height, 16, 12)
+    }
+
+    function copyOverVariableValues() {
+        Object.keys(variableControls).forEach((key) => {
+            drawContext.variables[key] = variableControls[key].value
+        })
     }
 
     function getEventLocation(e) {
@@ -271,5 +285,60 @@ function createRenderer(canvas) {
     return {
         start: start,
         registerDraw: registerDraw,
+        registerVariableControl: registerVariableControl,
     }
+}
+
+
+// ---
+
+// Controls
+
+function createVariableSlider(variable_name, min, max, step, default_value) {
+    if (default_value === undefined) {
+        default_value = 0
+    }
+
+    const container = document.createElement("div")
+    container.className = "control-container"
+
+    const data = {
+        name: variable_name,
+        label: variable_name,
+        value: default_value,
+        element: null,
+    }
+
+    const setValue = (event) => {
+        valueField.value = event.target.value
+        slider.value = event.target.value
+        data.value = event.target.value
+    }
+
+    const nameLabel = document.createElement("span")
+    nameLabel.innerHTML = data.label
+    nameLabel.className = "control-name"
+
+    const slider = document.createElement("input")
+    slider.type = "range"
+    slider.min = min
+    slider.max = max
+    slider.step = step
+    slider.className = "control-slider"
+    slider.addEventListener("input", setValue)
+
+    const valueField = document.createElement("input")
+    valueField.type = "number"
+    valueField.size = 4
+    valueField.className = "control-value"
+    valueField.addEventListener("input", setValue)
+
+    container.appendChild(nameLabel)
+    container.appendChild(slider)
+    container.appendChild(valueField)
+    data.element = container
+
+    setValue({target: {value: default_value}})
+
+    return data
 }
